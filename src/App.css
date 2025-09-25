@@ -180,17 +180,55 @@ body {
 @media (max-width: 768px) {
   .app-nav {
     padding: 12px 16px;
-    flex-direction: column;
-    gap: 12px;
   }
 
   .nav-left {
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
+    gap: 16px;
   }
 
   .nav-left h1 {
     font-size: 20px;
+  }
+
+  .view-switcher {
+    order: 1;
+    width: 100%;
+  }
+
+  .view-switcher button {
+    flex: 1;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .export-btn,
+  .theme-btn {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .export-btn span,
+  .theme-btn span {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-nav {
+    padding: 8px 12px;
+  }
+
+  .nav-left h1 {
+    font-size: 18px;
+  }
+
+  .view-switcher button {
+    padding: 10px 12px;
+    font-size: 14px;
   }
 }
