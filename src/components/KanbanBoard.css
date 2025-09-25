@@ -1,0 +1,233 @@
+.kanban-container {
+  padding: 20px;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.kanban-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.kanban-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 120px);
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.kanban-column {
+  flex: 0 0 320px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.column-header {
+  padding: 16px;
+  border-top: 4px solid var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+.column-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.column-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.task-count {
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.column-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.stat {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.stat.high-priority {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.stat.overdue {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.column-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  min-height: 200px;
+}
+
+.empty-column {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.empty-column p {
+  margin: 0 0 4px 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.empty-column span {
+  font-size: 12px;
+}
+
+.kanban-task-wrapper {
+  margin-bottom: 12px;
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kanban-task-wrapper:active {
+  cursor: grabbing;
+}
+
+.kanban-task-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.task-indicators {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.task-indicators span {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.due-date {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+.due-date.overdue {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  animation: pulse 2s infinite;
+}
+
+.duration {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.recurring {
+  background-color: #e0e7ff !important;
+  color: #3730a3 !important;
+}
+
+.start-time {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+.column-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+.add-to-column-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px dashed var(--text-secondary);
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.add-to-column-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background-color: var(--bg-primary);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 768px) {
+  .kanban-container {
+    padding: 12px;
+  }
+
+  .kanban-board {
+    gap: 12px;
+  }
+
+  .kanban-column {
+    flex: 0 0 280px;
+  }
+
+  .kanban-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+}
