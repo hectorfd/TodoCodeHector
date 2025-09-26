@@ -62,6 +62,14 @@ function App() {
         </div>
 
         <div className="nav-right">
+          <button
+            onClick={() => setShowColumnEditor(true)}
+            className="settings-btn"
+            title="Gestionar columnas"
+          >
+            <Settings size={16} />
+            Columnas
+          </button>
           <button onClick={toggleTheme} className="theme-btn" title="Cambiar tema">
             {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
