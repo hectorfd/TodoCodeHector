@@ -2,20 +2,19 @@ import { useState } from 'react';
 import Select from 'react-select';
 import './TaskForm.css';
 
-const TaskForm = ({ onSubmit, onCancel }) => {
+const TaskForm = ({ onSubmit, onCancel, columns }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    columnId: 'todo',
+    columnId: columns.length > 0 ? columns[0].id : 'todo',
     dueDate: '',
     priority: 'medium'
   });
 
-  const columnOptions = [
-    { value: 'todo', label: 'Por Hacer' },
-    { value: 'in-progress', label: 'En Progreso' },
-    { value: 'done', label: 'Completado' }
-  ];
+  const columnOptions = columns.map(column => ({
+    value: column.id,
+    label: column.name
+  }));
 
   const priorityOptions = [
     { value: 'low', label: 'Baja' },

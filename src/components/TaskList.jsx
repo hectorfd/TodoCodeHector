@@ -12,9 +12,10 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
 
   const filterOptions = [
     { value: 'all', label: 'Todas' },
-    { value: 'todo', label: 'Por Hacer' },
-    { value: 'in-progress', label: 'En Progreso' },
-    { value: 'done', label: 'Completadas' }
+    ...columns.map(column => ({
+      value: column.id,
+      label: column.name
+    }))
   ];
 
   const sortOptions = [
@@ -29,7 +30,8 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
       ...provided,
       backgroundColor: 'var(--bg-primary)',
       borderColor: 'var(--border-color)',
-      minHeight: '36px',
+      minHeight: '40px',
+      minWidth: '150px',
       fontSize: '14px',
       '&:hover': {
         borderColor: 'var(--primary-color)'
@@ -172,6 +174,7 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
                 task={task}
                 onUpdate={onUpdateTask}
                 onDelete={onDeleteTask}
+                columns={columns}
               />
 
               <div className="task-metadata">
@@ -210,6 +213,7 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
         <TaskForm
           onSubmit={handleCreateTask}
           onCancel={() => setShowForm(false)}
+          columns={columns}
         />
       )}
     </div>

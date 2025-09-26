@@ -3,7 +3,7 @@ import { Calendar, Trash2 } from 'lucide-react';
 import Select from 'react-select';
 import './TaskCard.css';
 
-const TaskCard = ({ task, onUpdate, onDelete }) => {
+const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
   const handleMove = (selectedOption) => {
     onUpdate(task.id, { column_id: selectedOption.value });
   };
@@ -22,11 +22,10 @@ const TaskCard = ({ task, onUpdate, onDelete }) => {
     return colors[priority] || colors.medium;
   };
 
-  const columnOptions = [
-    { value: 'todo', label: 'Por Hacer' },
-    { value: 'in-progress', label: 'En Progreso' },
-    { value: 'done', label: 'Completado' }
-  ];
+  const columnOptions = columns.map(column => ({
+    value: column.id,
+    label: column.name
+  }));
 
   const customStyles = {
     control: (provided) => ({

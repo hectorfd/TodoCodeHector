@@ -122,6 +122,7 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
                         task={task}
                         onUpdate={onUpdateTask}
                         onDelete={onDeleteTask}
+                        columns={columns}
                       />
 
                       <div className="task-indicators">
@@ -179,6 +180,7 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
         <TaskForm
           onSubmit={handleCreateTask}
           onCancel={() => setShowForm(false)}
+          columns={columns}
         />
       )}
     </div>
