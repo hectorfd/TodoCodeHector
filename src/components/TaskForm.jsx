@@ -101,6 +101,22 @@ const TaskForm = ({ onSubmit, onCancel, columns }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const getIntervalLabel = () => {
+    const interval = parseInt(formData.recurrenceInterval);
+    switch (formData.recurrenceType) {
+      case 'daily':
+        return interval === 1 ? 'día' : 'días';
+      case 'weekly':
+        return interval === 1 ? 'semana' : 'semanas';
+      case 'monthly':
+        return interval === 1 ? 'mes' : 'meses';
+      case 'yearly':
+        return interval === 1 ? 'año' : 'años';
+      default:
+        return 'días';
+    }
+  };
+
   return (
     <div className="task-form-overlay">
       <form onSubmit={handleSubmit} className="task-form">
@@ -197,7 +213,9 @@ const TaskForm = ({ onSubmit, onCancel, columns }) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="recurrenceInterval">Cada</label>
+                <label htmlFor="recurrenceInterval">
+                  Cada {formData.recurrenceInterval} {getIntervalLabel()}
+                </label>
                 <input
                   type="number"
                   id="recurrenceInterval"
