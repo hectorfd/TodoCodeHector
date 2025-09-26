@@ -33,12 +33,16 @@
 
 .kanban-column {
   flex: 0 0 320px;
+  width: 320px;
+  max-width: 320px;
+  min-width: 320px;
   background-color: transparent;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
   border: none;
   position: relative;
+  box-sizing: border-box;
 }
 
 .kanban-column:not(:last-child)::after {
@@ -71,6 +75,8 @@
   position: relative;
   clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
   margin-right: 5px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .kanban-column:last-child .column-header {
@@ -84,12 +90,18 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .column-name {
   font-weight: 700;
   font-size: 16px;
   color: var(--text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .task-count {
