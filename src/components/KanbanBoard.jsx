@@ -13,10 +13,16 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
   const columnsRef = useRef([]);
 
   const handleCreateTask = async (taskData) => {
-    // Si se abrió desde botón flotante, pre-seleccionar pero permitir cambio
-    await onCreateTask(taskData);
-    setShowForm(false);
-    setSelectedColumn(null);
+    try {
+      console.log('🎯 KanbanBoard: Creando tarea...', taskData);
+      await onCreateTask(taskData);
+      console.log('✅ KanbanBoard: Tarea creada exitosamente');
+      setShowForm(false);
+      setSelectedColumn(null);
+    } catch (error) {
+      console.error('❌ KanbanBoard: Error creando tarea:', error);
+      alert('Error creando la tarea: ' + error.message);
+    }
   };
 
   const handleAddToColumn = (columnId) => {
@@ -124,7 +130,11 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
   };
 
   useEffect(() => {
-    equalizeColumnHeights();
+    const timeoutId = setTimeout(() => {
+      equalizeColumnHeights();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [tasks, columns]);
 
   useEffect(() => {
@@ -132,16 +142,15 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
       equalizeColumnHeights();
     });
 
-    columnsRef.current.forEach(column => {
-      if (column) {
-        resizeObserver.observe(column);
-      }
+    const currentColumns = columnsRef.current.filter(col => col);
+    currentColumns.forEach(column => {
+      resizeObserver.observe(column);
     });
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, [tasks, columns]);
+  }, []);
 
   return (
     <div className="kanban-container">

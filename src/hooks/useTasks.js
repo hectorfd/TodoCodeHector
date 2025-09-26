@@ -31,6 +31,8 @@ export const useTasks = () => {
 
   const createTask = async (taskData) => {
     try {
+      console.log('🚀 Creando tarea:', taskData);
+
       const response = await fetch(`${API_BASE}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,14 +40,29 @@ export const useTasks = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Error en el servidor:', response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       const newTask = await response.json();
-      setTasks(prev => [...prev, newTask]);
+      console.log('✅ Tarea creada en backend:', newTask);
+
+      setTasks(prev => {
+        // Normalizar el campo columnId a column_id para compatibilidad
+        const normalizedTask = {
+          ...newTask,
+          column_id: newTask.columnId || newTask.column_id
+        };
+        const updatedTasks = [...prev, normalizedTask];
+        console.log('📝 Estado actualizado. Total tareas:', updatedTasks.length);
+        console.log('🔧 Tarea normalizada:', normalizedTask);
+        return updatedTasks;
+      });
+
       return newTask;
     } catch (error) {
-      console.error('Error creating task:', error);
+      console.error('❌ Error creating task:', error);
       throw error;
     }
   };

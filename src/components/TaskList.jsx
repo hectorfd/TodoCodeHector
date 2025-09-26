@@ -61,8 +61,15 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
   };
 
   const handleCreateTask = async (taskData) => {
-    await onCreateTask(taskData);
-    setShowForm(false);
+    try {
+      console.log('📋 TaskList: Creando tarea...', taskData);
+      await onCreateTask(taskData);
+      console.log('✅ TaskList: Tarea creada exitosamente');
+      setShowForm(false);
+    } catch (error) {
+      console.error('❌ TaskList: Error creando tarea:', error);
+      alert('Error creando la tarea: ' + error.message);
+    }
   };
 
   const getFilteredTasks = () => {
