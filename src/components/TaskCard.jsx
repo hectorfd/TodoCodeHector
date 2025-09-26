@@ -45,6 +45,81 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
     return diffDays;
   };
 
+  const getDayName = (dateString) => {
+    const date = new Date(dateString);
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return days[date.getDay()];
+  };
+
+  const getRecurrenceInfo = () => {
+    if (!task.is_recurring || !task.recurrence_type) return null;
+
+    const interval = task.interval_value || 1;
+    const type = task.recurrence_type;
+
+    let patternText = '';
+    switch (type) {
+      case 'daily':
+        patternText = interval === 1 ? 'Diario' : `Cada ${interval} días`;
+        break;
+      case 'weekly':
+        patternText = interval === 1 ? 'Semanal' : `Cada ${interval} semanas`;
+        break;
+      case 'monthly':
+        patternText = interval === 1 ? 'Mensual' : `Cada ${interval} meses`;
+        break;
+      case 'yearly':
+        patternText = interval === 1 ? 'Anual' : `Cada ${interval} años`;
+        break;
+    }
+
+    const endDate = task.recurrence_end_date;
+    const endText = endDate ? ` hasta ${formatDate(endDate)}` : '';
+
+    return {
+      pattern: patternText,
+      endDate: endDate,
+      fullText: `${patternText}${endText}`
+    };
+  };
+
+  const getNextOccurrences = () => {
+    if (!task.is_recurring || !task.recurrence_type) return [];
+
+    const baseDate = new Date(task.created_at);
+    const interval = task.interval_value || 1;
+    const type = task.recurrence_type;
+    const endDate = task.recurrence_end_date ? new Date(task.recurrence_end_date) : null;
+    const today = new Date();
+
+    const occurrences = [];
+    let currentDate = new Date(baseDate);
+
+    for (let i = 0; i < 5; i++) {
+      switch (type) {
+        case 'daily':
+          currentDate.setDate(currentDate.getDate() + interval);
+          break;
+        case 'weekly':
+          currentDate.setDate(currentDate.getDate() + (interval * 7));
+          break;
+        case 'monthly':
+          currentDate.setMonth(currentDate.getMonth() + interval);
+          break;
+        case 'yearly':
+          currentDate.setFullYear(currentDate.getFullYear() + interval);
+          break;
+      }
+
+      if (endDate && currentDate > endDate) break;
+      if (currentDate > today) {
+        occurrences.push(new Date(currentDate));
+      }
+    }
+
+    return occurrences;
+  };
+
   const columnOptions = columns.map(column => ({
     value: column.id,
     label: column.name
@@ -120,7 +195,12 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
       {task.due_date && (
         <div className={`task-due-date ${status.type}`}>
           <Calendar size={14} />
-          <span>{formatDate(task.due_date)}</span>
+          <span
+            title={`${formatDate(task.due_date)} (${getDayName(task.due_date)})`}
+            className="date-with-tooltip"
+          >
+            {formatDate(task.due_date)}
+          </span>
           {daysUntilDue !== null && (
             <span className="days-until-due">
               {daysUntilDue === 0 && ' (Hoy)'}
@@ -133,9 +213,27 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
       )}
 
       {task.is_recurring && (
-        <div className="recurrence-info">
-          <RotateCcw size={12} />
-          <span>Tarea recurrente</span>
+        <div className="recurrence-details">
+          <div className="recurrence-info">
+            <RotateCcw size={12} />
+            <span>{getRecurrenceInfo()?.fullText || 'Tarea recurrente'}</span>
+          </div>
+
+          {getNextOccurrences().length > 0 && (
+            <div className="next-occurrences">
+              <span className="next-label">Próximas:</span>
+              {getNextOccurrences().slice(0, 3).map((date, index) => (
+                <span
+                  key={index}
+                  className="next-date"
+                  title={`${formatDate(date)} (${getDayName(date)})`}
+                >
+                  {formatDate(date)}
+                </span>
+              ))}
+              {getNextOccurrences().length > 3 && <span className="more-dates">...</span>}
+            </div>
+          )}
         </div>
       )}
 

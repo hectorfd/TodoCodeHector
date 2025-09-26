@@ -151,9 +151,12 @@ class DatabaseService {
 
   getAllTasks() {
     return this.db.prepare(`
-      SELECT t.*, c.name as column_name, c.color as column_color
+      SELECT t.*, c.name as column_name, c.color as column_color,
+             tr.recurrence_type, tr.interval_value, tr.end_date as recurrence_end_date,
+             tr.days_of_week, tr.days_of_month
       FROM tasks t
       LEFT JOIN columns c ON t.column_id = c.id
+      LEFT JOIN task_recurrence tr ON t.id = tr.task_id
       ORDER BY t.created_at DESC
     `).all();
   }
