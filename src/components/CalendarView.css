@@ -1,0 +1,260 @@
+.calendar-container {
+  padding: 2rem;
+  height: 100%;
+  background: var(--bg-primary);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-button {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-1px);
+}
+
+.month-year {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  min-width: 200px;
+  text-align: center;
+}
+
+.today-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.today-button:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.calendar-grid {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.weekday {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+  min-height: 120px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  background: var(--bg-secondary);
+}
+
+.calendar-day:hover {
+  background: var(--bg-tertiary);
+}
+
+.calendar-day.today {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+}
+
+.calendar-day.today .day-number {
+  color: white;
+  font-weight: 700;
+}
+
+.calendar-day.other-month {
+  background: var(--bg-primary);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.calendar-day.other-month:hover {
+  background: var(--bg-primary);
+}
+
+.day-number {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.day-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: calc(100% - 1.5rem);
+  overflow: hidden;
+}
+
+.mini-task {
+  background: var(--bg-primary);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  border-left: 3px solid var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 18px;
+}
+
+.mini-task:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mini-task.recurring {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-left-color: #8b5cf6;
+}
+
+.mini-task-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.recurring-indicator {
+  color: #8b5cf6;
+  font-weight: 700;
+  font-size: 8px;
+  margin-left: 2px;
+}
+
+.more-tasks {
+  background: var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 9px;
+  text-align: center;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.calendar-day:nth-child(7n) {
+  border-right: none;
+}
+
+.calendar-day:nth-last-child(-n+7) {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .calendar-container {
+    padding: 1rem;
+  }
+
+  .calendar-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .month-year {
+    font-size: 1.25rem;
+  }
+
+  .calendar-day {
+    min-height: 80px;
+    padding: 0.25rem;
+  }
+
+  .weekday {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .mini-task {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  .day-number {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-container {
+    padding: 0.5rem;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+  }
+
+  .weekday {
+    padding: 0.25rem;
+    font-size: 10px;
+  }
+
+  .mini-task {
+    font-size: 8px;
+    min-height: 14px;
+  }
+
+  .day-number {
+    font-size: 12px;
+    margin-bottom: 0.25rem;
+  }
+}

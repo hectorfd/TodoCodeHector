@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Kanban, List, Download, Sun, Moon, Settings } from 'lucide-react';
+import { Kanban, List, Calendar, Download, Sun, Moon, Settings } from 'lucide-react';
 import TaskList from './components/TaskList';
 import KanbanBoard from './components/KanbanBoard';
+import CalendarView from './components/CalendarView';
 import ColumnEditor from './components/ColumnEditor';
 import { useTasks } from './hooks/useTasks';
 import { useTheme } from './hooks/useTheme';
@@ -58,6 +59,13 @@ function App() {
               <List size={16} />
               Lista
             </button>
+            <button
+              className={currentView === 'calendar' ? 'active' : ''}
+              onClick={() => setCurrentView('calendar')}
+            >
+              <Calendar size={16} />
+              Calendario
+            </button>
           </div>
         </div>
 
@@ -81,7 +89,7 @@ function App() {
       </nav>
 
       <main className="app-main">
-        {currentView === 'kanban' ? (
+        {currentView === 'kanban' && (
           <KanbanBoard
             tasks={tasks}
             columns={columns}
@@ -89,8 +97,18 @@ function App() {
             onUpdateTask={updateTask}
             onDeleteTask={deleteTask}
           />
-        ) : (
+        )}
+        {currentView === 'list' && (
           <TaskList
+            tasks={tasks}
+            columns={columns}
+            onCreateTask={createTask}
+            onUpdateTask={updateTask}
+            onDeleteTask={deleteTask}
+          />
+        )}
+        {currentView === 'calendar' && (
+          <CalendarView
             tasks={tasks}
             columns={columns}
             onCreateTask={createTask}
