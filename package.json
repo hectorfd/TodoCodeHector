@@ -19,6 +19,7 @@
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-select": "^5.10.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
