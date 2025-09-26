@@ -103,7 +103,7 @@ class ApiServer {
         console.log('Creating task:', task);
         this.db.createTask(task);
 
-        if (taskData.isRecurring && taskData.recurrenceType) {
+        if (taskData.isRecurring && taskData.recurrenceType && taskData.recurrenceType !== 'undefined') {
           const recurrence = {
             id: uuidv4(),
             taskId: task.id,

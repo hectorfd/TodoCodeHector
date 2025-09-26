@@ -76,7 +76,16 @@ class DatabaseService {
     `;
 
     this.db.exec(createTables);
+    this.runMigrations();
     this.seedDefaultColumns();
+  }
+
+  runMigrations() {
+    try {
+      this.db.exec(`ALTER TABLE tasks ADD COLUMN last_generated DATETIME`);
+    } catch (error) {
+      // Columna ya existe, ignorar
+    }
   }
 
   seedDefaultColumns() {
@@ -150,17 +159,34 @@ class DatabaseService {
   }
 
   createTask(task) {
-    const stmt = this.db.prepare(`
-      INSERT INTO tasks (id, title, description, column_id, due_date, duration_hours,
-        duration_minutes, start_time, end_time, priority, is_recurring, parent_task_id, last_generated)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      task.id, task.title, task.description, task.columnId, task.dueDate,
-      task.durationHours || null, task.durationMinutes || null,
-      task.startTime || null, task.endTime || null, task.priority,
-      task.isRecurring || 0, task.parentTaskId || null, task.lastGenerated || null
-    );
+    try {
+      // Primero intentar con la nueva estructura (con last_generated)
+      const stmt = this.db.prepare(`
+        INSERT INTO tasks (id, title, description, column_id, due_date, duration_hours,
+          duration_minutes, start_time, end_time, priority, is_recurring, parent_task_id, last_generated)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      return stmt.run(
+        task.id, task.title, task.description, task.columnId, task.dueDate,
+        task.durationHours || null, task.durationMinutes || null,
+        task.startTime || null, task.endTime || null, task.priority,
+        task.isRecurring ? 1 : 0, task.parentTaskId || null, task.lastGenerated || null
+      );
+    } catch (error) {
+      // Si falla, usar la estructura antigua (sin last_generated)
+      console.log('Fallback to old structure:', error.message);
+      const stmt = this.db.prepare(`
+        INSERT INTO tasks (id, title, description, column_id, due_date, duration_hours,
+          duration_minutes, start_time, end_time, priority, is_recurring, parent_task_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      return stmt.run(
+        task.id, task.title, task.description, task.columnId, task.dueDate,
+        task.durationHours || null, task.durationMinutes || null,
+        task.startTime || null, task.endTime || null, task.priority,
+        task.isRecurring ? 1 : 0, task.parentTaskId || null
+      );
+    }
   }
 
   createRecurrence(recurrence) {
