@@ -1,5 +1,5 @@
 
-import { Calendar, Trash2 } from 'lucide-react';
+import { Calendar, Trash2, RotateCcw, AlertTriangle, Clock } from 'lucide-react';
 import Select from 'react-select';
 import './TaskCard.css';
 
@@ -20,6 +20,29 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
       high: '#ef4444'
     };
     return colors[priority] || colors.medium;
+  };
+
+  const getTaskStatus = () => {
+    const now = new Date();
+    const dueDate = task.due_date ? new Date(task.due_date) : null;
+    const isCompleted = task.column_id === 'done';
+
+    if (isCompleted) return { type: 'completed', label: 'Completada', color: '#10b981' };
+    if (dueDate && dueDate < now) return { type: 'overdue', label: 'Vencida', color: '#ef4444' };
+    if (dueDate && dueDate <= new Date(now.getTime() + 24 * 60 * 60 * 1000)) {
+      return { type: 'due-soon', label: 'Vence hoy', color: '#f59e0b' };
+    }
+    if (task.is_recurring) return { type: 'recurring', label: 'Recurrente', color: '#8b5cf6' };
+    return { type: 'normal', label: 'Normal', color: '#6b7280' };
+  };
+
+  const getDaysUntilDue = () => {
+    if (!task.due_date) return null;
+    const now = new Date();
+    const dueDate = new Date(task.due_date);
+    const diffTime = dueDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   const columnOptions = columns.map(column => ({
@@ -62,14 +85,32 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
     })
   };
 
+  const status = getTaskStatus();
+  const daysUntilDue = getDaysUntilDue();
+
   return (
-    <div className="task-card">
+    <div className={`task-card ${status.type}`}>
       <div className="task-header">
         <h4 className="task-title">{task.title}</h4>
-        <div
-          className="priority-indicator"
-          style={{ backgroundColor: getPriorityColor(task.priority) }}
-        />
+        <div className="task-indicators">
+          <div
+            className="priority-indicator"
+            style={{ backgroundColor: getPriorityColor(task.priority) }}
+            title={`Prioridad: ${task.priority}`}
+          />
+          {status.type !== 'normal' && (
+            <div
+              className={`status-badge ${status.type}`}
+              style={{ backgroundColor: status.color }}
+              title={status.label}
+            >
+              {status.type === 'overdue' && <AlertTriangle size={10} />}
+              {status.type === 'due-soon' && <Clock size={10} />}
+              {status.type === 'recurring' && <RotateCcw size={10} />}
+              {status.type === 'completed' && '✓'}
+            </div>
+          )}
+        </div>
       </div>
 
       {task.description && (
@@ -77,9 +118,24 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
       )}
 
       {task.due_date && (
-        <div className="task-due-date">
+        <div className={`task-due-date ${status.type}`}>
           <Calendar size={14} />
-          {formatDate(task.due_date)}
+          <span>{formatDate(task.due_date)}</span>
+          {daysUntilDue !== null && (
+            <span className="days-until-due">
+              {daysUntilDue === 0 && ' (Hoy)'}
+              {daysUntilDue === 1 && ' (Mañana)'}
+              {daysUntilDue > 1 && ` (en ${daysUntilDue} días)`}
+              {daysUntilDue < 0 && ` (${Math.abs(daysUntilDue)} días vencida)`}
+            </span>
+          )}
+        </div>
+      )}
+
+      {task.is_recurring && (
+        <div className="recurrence-info">
+          <RotateCcw size={12} />
+          <span>Tarea recurrente</span>
         </div>
       )}
 
