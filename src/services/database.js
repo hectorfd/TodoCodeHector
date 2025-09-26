@@ -152,14 +152,14 @@ class DatabaseService {
   createTask(task) {
     const stmt = this.db.prepare(`
       INSERT INTO tasks (id, title, description, column_id, due_date, duration_hours,
-        duration_minutes, start_time, end_time, priority, is_recurring, parent_task_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        duration_minutes, start_time, end_time, priority, is_recurring, parent_task_id, last_generated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     return stmt.run(
       task.id, task.title, task.description, task.columnId, task.dueDate,
       task.durationHours || null, task.durationMinutes || null,
       task.startTime || null, task.endTime || null, task.priority,
-      task.isRecurring || 0, task.parentTaskId || null
+      task.isRecurring || 0, task.parentTaskId || null, task.lastGenerated || null
     );
   }
 
