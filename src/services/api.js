@@ -102,6 +102,19 @@ class ApiServer {
 
         console.log('Creating task:', task);
         this.db.createTask(task);
+
+        if (taskData.isRecurring && taskData.recurrenceType) {
+          const recurrence = {
+            id: uuidv4(),
+            taskId: task.id,
+            type: taskData.recurrenceType,
+            interval: taskData.recurrenceInterval || 1,
+            endDate: taskData.recurrenceEndDate || null
+          };
+          console.log('Creating recurrence:', recurrence);
+          this.db.createRecurrence(recurrence);
+        }
+
         res.status(201).json(task);
       } catch (error) {
         console.error('Error creating task:', error);
@@ -125,6 +138,19 @@ class ApiServer {
         this.db.deleteTask(id);
         res.json({ message: 'Task deleted successfully' });
       } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
+    this.app.post('/api/tasks/generate-recurring', (req, res) => {
+      try {
+        const generatedTasks = this.generateRecurringTasks();
+        res.json({
+          message: `Generated ${generatedTasks} recurring tasks`,
+          count: generatedTasks
+        });
+      } catch (error) {
+        console.error('Error generating recurring tasks:', error);
         res.status(500).json({ error: error.message });
       }
     });
