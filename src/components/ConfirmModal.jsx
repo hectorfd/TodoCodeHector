@@ -1,10 +1,11 @@
 import { AlertTriangle } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import './ConfirmModal.css';
 
 const ConfirmModal = ({ isOpen, onConfirm, onCancel, title, message }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -23,7 +24,8 @@ const ConfirmModal = ({ isOpen, onConfirm, onCancel, title, message }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Plus, AlertCircle, Clock, RotateCcw } from 'lucide-react';
+import { Plus, AlertCircle, Clock, RotateCcw, ArrowRight } from 'lucide-react';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import './KanbanBoard.css';
@@ -8,10 +8,21 @@ import './KanbanBoard.css';
 const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) => {
   const [showForm, setShowForm] = useState(false);
   const [draggedTask, setDraggedTask] = useState(null);
+  const [hoveredColumn, setHoveredColumn] = useState(null);
+  const [selectedColumn, setSelectedColumn] = useState(null);
 
   const handleCreateTask = async (taskData) => {
-    await onCreateTask(taskData);
+    const finalTaskData = selectedColumn ?
+      { ...taskData, column_id: selectedColumn } :
+      taskData;
+    await onCreateTask(finalTaskData);
     setShowForm(false);
+    setSelectedColumn(null);
+  };
+
+  const handleAddToColumn = (columnId) => {
+    setSelectedColumn(columnId);
+    setShowForm(true);
   };
 
   const handleDragStart = (e, task) => {
@@ -83,9 +94,10 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
       </div>
 
       <div className="kanban-board">
-        {columns.map(column => {
+        {columns.map((column, index) => {
           const columnTasks = getTasksByColumn(column.id);
           const stats = getColumnStats(column.id);
+          const isLastColumn = index === columns.length - 1;
 
           return (
             <div
@@ -93,6 +105,8 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
               className="kanban-column"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
+              onMouseEnter={() => setHoveredColumn(column.id)}
+              onMouseLeave={() => setHoveredColumn(null)}
             >
               <div
                 className="column-header"
@@ -103,20 +117,6 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
                   <span className="task-count">({stats.total})</span>
                 </div>
 
-                <div className="column-stats">
-                  {stats.highPriority > 0 && (
-                    <span className="stat high-priority">
-                      <AlertCircle size={12} />
-                      {stats.highPriority}
-                    </span>
-                  )}
-                  {stats.overdue > 0 && (
-                    <span className="stat overdue">
-                      <Clock size={12} />
-                      {stats.overdue}
-                    </span>
-                  )}
-                </div>
               </div>
 
               <div className="column-body">
@@ -145,16 +145,16 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
                 )}
               </div>
 
-              <div className="column-footer">
-                <button
-                  className="add-to-column-btn"
-                  onClick={() => setShowForm(true)}
-                >
-                  <Plus size={12} />
-                  Añadir tarea
-                </button>
+                {hoveredColumn === column.id && (
+                  <button
+                    className="floating-add-btn"
+                    onClick={() => handleAddToColumn(column.id)}
+                    title={`Añadir tarea a ${column.name}`}
+                  >
+                    <Plus size={20} />
+                  </button>
+                )}
               </div>
-            </div>
           );
         })}
       </div>

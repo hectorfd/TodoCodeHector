@@ -23,22 +23,39 @@
 
 .kanban-board {
   display: flex;
-  gap: 20px;
+  gap: 8px;
   height: calc(100vh - 120px);
   overflow-x: auto;
   padding-bottom: 20px;
+  align-items: flex-start;
 }
+
 
 .kanban-column {
   flex: 0 0 320px;
-  background-color: var(--bg-secondary);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  background-color: transparent;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-  border: 2px solid transparent;
+  border: none;
+  position: relative;
+}
+
+.kanban-column:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  width: 2px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--border-color) 0,
+    var(--border-color) 4px,
+    transparent 4px,
+    transparent 8px
+  );
 }
 
 .kanban-column.drag-over {
@@ -48,10 +65,19 @@
 }
 
 .column-header {
-  padding: 16px;
-  border-top: 4px solid var(--accent-color);
-  border-bottom: 1px solid var(--border-color);
+  padding: 16px 20px 16px 16px;
   background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  border-top: 4px solid var(--accent-color);
+  position: relative;
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
+  margin-right: 5px;
+}
+
+.kanban-column:last-child .column-header {
+  clip-path: none;
+  margin-right: 0;
+  padding-right: 16px;
 }
 
 .column-title {
@@ -226,6 +252,52 @@
   background-color: var(--bg-primary);
 }
 
+.kanban-column {
+  position: relative;
+}
+
+.floating-add-btn {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: slideIn 0.3s ease-out;
+}
+
+.floating-add-btn:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.floating-add-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -253,4 +325,11 @@
     gap: 12px;
     align-items: stretch;
   }
+
+  .floating-add-btn {
+    width: 40px;
+    height: 40px;
+    right: 12px;
+  }
+
 }

@@ -86,7 +86,10 @@ const TaskCard = ({ task, onUpdate, onDelete, columns, isKanbanView = false }) =
   };
 
   const getRecurrenceInfo = () => {
-    if (!task.is_recurring || !task.recurrence_type) return null;
+    // Solo mostrar info de recurrencia para tareas realmente recurrentes
+    if (!task.is_recurring || !task.recurrence_type || task.interval_value === null || task.interval_value === undefined) {
+      return null;
+    }
 
     const interval = task.interval_value || 1;
     const type = task.recurrence_type;
@@ -105,6 +108,8 @@ const TaskCard = ({ task, onUpdate, onDelete, columns, isKanbanView = false }) =
       case 'yearly':
         patternText = interval === 1 ? 'Anual' : `Cada ${interval} años`;
         break;
+      default:
+        return null; // Si no es un tipo válido, no mostrar nada
     }
 
     const endDate = task.recurrence_end_date;

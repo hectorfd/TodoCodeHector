@@ -40,7 +40,8 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
       ...provided,
       backgroundColor: 'var(--bg-secondary)',
       border: '1px solid var(--border-color)',
-      fontSize: '14px'
+      fontSize: '14px',
+      zIndex: 9999
     }),
     option: (provided, state) => ({
       ...provided,
@@ -170,6 +171,7 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
             onChange={(selectedOption) => setFilter(selectedOption.value)}
             styles={customStyles}
             isSearchable={false}
+            menuPortalTarget={document.body}
           />
         </div>
 
@@ -181,6 +183,7 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
             onChange={(selectedOption) => setSortBy(selectedOption.value)}
             styles={customStyles}
             isSearchable={false}
+            menuPortalTarget={document.body}
           />
         </div>
       </div>
@@ -291,7 +294,8 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
                         menu: (provided) => ({
                           ...provided,
                           backgroundColor: 'var(--bg-secondary)',
-                          fontSize: '12px'
+                          fontSize: '12px',
+                          zIndex: 9999
                         }),
                         option: (provided, state) => ({
                           ...provided,
@@ -308,6 +312,7 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
                       }}
                       isSearchable={false}
                       className="status-select"
+                      menuPortalTarget={document.body}
                     />
 
                     <button
