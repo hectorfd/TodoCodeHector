@@ -22,7 +22,7 @@ Aplicación personal de tareas con vista lista y tablero Kanban personalizable.
 - [x] Modo oscuro/claro completamente funcional
 - [x] Exportar JSON con fecha automática
 - [x] Navegación fluida entre vistas
-- [ ] Columnas personalizables
+- [x] Columnas personalizables
 - [ ] Sistema de tareas recurrentes
 - [ ] Campos personalizados (URLs, notas)
 - [ ] Soporte para imágenes

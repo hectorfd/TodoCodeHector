@@ -36,11 +36,17 @@ export const useTasks = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(taskData)
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const newTask = await response.json();
       setTasks(prev => [...prev, newTask]);
       return newTask;
     } catch (error) {
       console.error('Error creating task:', error);
+      throw error;
     }
   };
 

@@ -8,7 +8,11 @@ const TaskForm = ({ onSubmit, onCancel, columns }) => {
     description: '',
     columnId: columns.length > 0 ? columns[0].id : 'todo',
     dueDate: '',
-    priority: 'medium'
+    priority: 'medium',
+    isRecurring: false,
+    recurrenceType: 'daily',
+    recurrenceInterval: 1,
+    recurrenceEndDate: ''
   });
 
   const columnOptions = columns.map(column => ({
@@ -20,6 +24,13 @@ const TaskForm = ({ onSubmit, onCancel, columns }) => {
     { value: 'low', label: 'Baja' },
     { value: 'medium', label: 'Media' },
     { value: 'high', label: 'Alta' }
+  ];
+
+  const recurrenceOptions = [
+    { value: 'daily', label: 'Diario' },
+    { value: 'weekly', label: 'Semanal' },
+    { value: 'monthly', label: 'Mensual' },
+    { value: 'yearly', label: 'Anual' }
   ];
 
   const customStyles = {
@@ -65,15 +76,23 @@ const TaskForm = ({ onSubmit, onCancel, columns }) => {
       description: formData.description.trim(),
       columnId: formData.columnId,
       dueDate: formData.dueDate || null,
-      priority: formData.priority
+      priority: formData.priority,
+      isRecurring: formData.isRecurring,
+      recurrenceType: formData.isRecurring ? formData.recurrenceType : null,
+      recurrenceInterval: formData.isRecurring ? formData.recurrenceInterval : null,
+      recurrenceEndDate: formData.isRecurring && formData.recurrenceEndDate ? formData.recurrenceEndDate : null
     });
 
     setFormData({
       title: '',
       description: '',
-      columnId: 'todo',
+      columnId: columns.length > 0 ? columns[0].id : 'todo',
       dueDate: '',
-      priority: 'medium'
+      priority: 'medium',
+      isRecurring: false,
+      recurrenceType: 'daily',
+      recurrenceInterval: 1,
+      recurrenceEndDate: ''
     });
   };
 
@@ -149,6 +168,60 @@ const TaskForm = ({ onSubmit, onCancel, columns }) => {
             onChange={handleChange}
           />
         </div>
+
+        <div className="form-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              name="isRecurring"
+              checked={formData.isRecurring}
+              onChange={(e) => setFormData(prev => ({ ...prev, isRecurring: e.target.checked }))}
+            />
+            Tarea recurrente
+          </label>
+        </div>
+
+        {formData.isRecurring && (
+          <div className="recurrence-options">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="recurrenceType">Frecuencia</label>
+                <Select
+                  options={recurrenceOptions}
+                  value={recurrenceOptions.find(option => option.value === formData.recurrenceType)}
+                  onChange={(selectedOption) => setFormData(prev => ({ ...prev, recurrenceType: selectedOption.value }))}
+                  styles={customStyles}
+                  placeholder="Seleccionar frecuencia..."
+                  isSearchable={false}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="recurrenceInterval">Cada</label>
+                <input
+                  type="number"
+                  id="recurrenceInterval"
+                  name="recurrenceInterval"
+                  value={formData.recurrenceInterval}
+                  onChange={handleChange}
+                  min="1"
+                  max="365"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="recurrenceEndDate">Terminar el (opcional)</label>
+              <input
+                type="date"
+                id="recurrenceEndDate"
+                name="recurrenceEndDate"
+                value={formData.recurrenceEndDate}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="form-actions">
           <button type="button" onClick={onCancel} className="cancel-btn">
