@@ -1,4 +1,5 @@
 
+import { Calendar, Trash2 } from 'lucide-react';
 import './TaskCard.css';
 
 const TaskCard = ({ task, onUpdate, onDelete }) => {
@@ -36,7 +37,8 @@ const TaskCard = ({ task, onUpdate, onDelete }) => {
 
       {task.due_date && (
         <div className="task-due-date">
-          📅 {formatDate(task.due_date)}
+          <Calendar size={14} />
+          {formatDate(task.due_date)}
         </div>
       )}
 
@@ -56,7 +58,7 @@ const TaskCard = ({ task, onUpdate, onDelete }) => {
           className="delete-btn"
           title="Eliminar tarea"
         >
-          🗑️
+          <Trash2 size={14} />
         </button>
       </div>
     </div>
