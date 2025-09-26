@@ -1,14 +1,21 @@
 import { useState } from 'react';
-import { Kanban, List, Download, Sun, Moon } from 'lucide-react';
+import { Kanban, List, Download, Sun, Moon, Settings } from 'lucide-react';
 import TaskList from './components/TaskList';
 import KanbanBoard from './components/KanbanBoard';
+import ColumnEditor from './components/ColumnEditor';
 import { useTasks } from './hooks/useTasks';
 import { useTheme } from './hooks/useTheme';
 import './App.css';
 
 function App() {
   const [currentView, setCurrentView] = useState('kanban');
-  const { tasks, columns, loading, createTask, updateTask, deleteTask, exportData } = useTasks();
+  const [showColumnEditor, setShowColumnEditor] = useState(false);
+  const {
+    tasks, columns, loading,
+    createTask, updateTask, deleteTask,
+    createColumn, updateColumn, deleteColumn, reorderColumns,
+    exportData
+  } = useTasks();
   const { theme, toggleTheme } = useTheme();
 
   const handleExport = async () => {
