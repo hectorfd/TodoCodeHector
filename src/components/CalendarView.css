@@ -153,6 +153,12 @@
   transition: all 0.2s ease;
   cursor: pointer;
   min-height: 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .mini-task {
+  background: var(--bg-tertiary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .mini-task:hover {
@@ -160,9 +166,18 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.dark .mini-task:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
 .mini-task.recurring {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
   border-left-color: #8b5cf6;
+}
+
+.dark .mini-task.recurring {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+  border-left-color: #a78bfa !important;
 }
 
 .mini-task-title {
@@ -181,6 +196,10 @@
   margin-left: 2px;
 }
 
+.dark .recurring-indicator {
+  color: #a78bfa !important;
+}
+
 .more-tasks {
   background: var(--border-color);
   color: var(--text-secondary);
@@ -190,6 +209,12 @@
   text-align: center;
   font-weight: 500;
   margin-top: 2px;
+}
+
+.dark .more-tasks {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .calendar-day:nth-child(7n) {

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import DatabaseService from './database.js';
 
 class ApiServer {
-  constructor(port = 3001) {
+  constructor(port = 3002) {
     this.app = express();
     this.port = port;
     this.db = new DatabaseService();
@@ -135,9 +135,33 @@ class ApiServer {
     this.app.delete('/api/tasks/:id', (req, res) => {
       try {
         const { id } = req.params;
-        this.db.deleteTask(id);
-        res.json({ message: 'Task deleted successfully' });
+        console.log('🔥 FUERZA BRUTA: Eliminando tarea con ID:', id);
+        const result = this.db.deleteTask(id);
+        console.log('✅ ÉXITO: Tarea eliminada:', result);
+        res.json({
+          message: 'Task deleted successfully',
+          changes: result.changes,
+          success: true
+        });
       } catch (error) {
+        console.error('❌ FALLO ELIMINANDO TAREA:', error);
+        res.status(500).json({
+          error: error.message,
+          success: false,
+          taskId: req.params.id
+        });
+      }
+    });
+
+    this.app.delete('/api/tasks/:id/recurring', (req, res) => {
+      try {
+        const { id } = req.params;
+        console.log('Attempting to delete recurring task with ID:', id);
+        const result = this.db.deleteRecurringTask(id);
+        console.log('Recurring delete result:', result);
+        res.json({ message: 'Recurring task deleted successfully' });
+      } catch (error) {
+        console.error('Error deleting recurring task:', error);
         res.status(500).json({ error: error.message });
       }
     });
@@ -169,11 +193,35 @@ class ApiServer {
         res.status(500).json({ error: error.message });
       }
     });
+
+    this.app.get('/api/debug/database', (req, res) => {
+      try {
+        console.log('🔍 INSPECCIONANDO BASE DE DATOS...');
+
+        const tasks = this.db.db.prepare('SELECT * FROM tasks').all();
+        const recurrence = this.db.db.prepare('SELECT * FROM task_recurrence').all();
+
+        console.log('📋 TASKS EN DB:', tasks.length);
+        console.log('🔄 RECURRENCE EN DB:', recurrence.length);
+
+        res.json({
+          totalTasks: tasks.length,
+          totalRecurrence: recurrence.length,
+          tasks: tasks.map(t => ({ id: t.id, title: t.title, is_recurring: t.is_recurring })),
+          recurrence: recurrence.map(r => ({ task_id: r.task_id, type: r.recurrence_type })),
+          raw: { tasks, recurrence }
+        });
+      } catch (error) {
+        console.error('❌ ERROR inspeccionando DB:', error);
+        res.status(500).json({ error: error.message });
+      }
+    });
   }
 
   start() {
     this.server = this.app.listen(this.port, () => {
-      console.log(`API server running on port ${this.port}`);
+      console.log(`🚀 API server running on port ${this.port}`);
+      console.log(`🔍 Debug endpoint: http://localhost:${this.port}/api/debug/database`);
     });
   }
 

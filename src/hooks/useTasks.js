@@ -67,10 +67,35 @@ export const useTasks = () => {
 
   const deleteTask = async (id) => {
     try {
-      await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
+      console.log('ELIMINANDO TAREA FUERZA BRUTA:', id);
+
+      // Paso 1: Eliminar datos de recurrencia (puede fallar y no importa)
+      try {
+        await fetch(`${API_BASE}/tasks/${id}/recurrence`, { method: 'DELETE' });
+        console.log('Datos de recurrencia eliminados');
+      } catch (e) {
+        console.log('No había datos de recurrencia o no se pudo eliminar');
+      }
+
+      // Paso 2: Eliminar la tarea principal (ESTO SÍ DEBE FUNCIONAR)
+      const response = await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
+
+      if (!response.ok) {
+        // Si falla, intentar endpoint alternativo
+        console.log('Primer intento falló, intentando método alternativo...');
+        const response2 = await fetch(`${API_BASE}/tasks/force-delete/${id}`, { method: 'DELETE' });
+
+        if (!response2.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      }
+
+      // Paso 3: Actualizar UI
       setTasks(prev => prev.filter(task => task.id !== id));
+      console.log('✅ TAREA ELIMINADA EXITOSAMENTE');
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error('❌ ERROR eliminando tarea:', error);
+      throw error;
     }
   };
 

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Plus, AlertCircle, Clock, RotateCcw } from 'lucide-react';
 import TaskCard from './TaskCard';
@@ -16,11 +17,18 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
   const handleDragStart = (e, task) => {
     setDraggedTask(task);
     e.dataTransfer.effectAllowed = 'move';
+
+    const taskElement = e.target.closest('.kanban-task-wrapper');
+    if (taskElement) {
+      taskElement.classList.add('dragging');
+    }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    const column = e.currentTarget;
+    column.classList.add('drag-over');
   };
 
   const handleDrop = (e, columnId) => {
@@ -29,6 +37,13 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
       onUpdateTask(draggedTask.id, { column_id: columnId });
     }
     setDraggedTask(null);
+
+    document.querySelectorAll('.kanban-task-wrapper.dragging').forEach(el => {
+      el.classList.remove('dragging');
+    });
+    document.querySelectorAll('.kanban-column.drag-over').forEach(el => {
+      el.classList.remove('drag-over');
+    });
   };
 
   const getTasksByColumn = (columnId) => {
@@ -123,40 +138,8 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
                         onUpdate={onUpdateTask}
                         onDelete={onDeleteTask}
                         columns={columns}
+                        isKanbanView={true}
                       />
-
-                      <div className="task-indicators">
-                        {task.due_date && (
-                          <span
-                            className={`due-date ${
-                              new Date(task.due_date) < new Date() && task.column_id !== 'done'
-                                ? 'overdue'
-                                : ''
-                            }`}
-                          >
-                            {new Date(task.due_date).toLocaleDateString()}
-                          </span>
-                        )}
-
-                        {(task.duration_hours || task.duration_minutes) && (
-                          <span className="duration">
-                            {task.duration_hours || 0}h {task.duration_minutes || 0}m
-                          </span>
-                        )}
-
-                        {task.is_recurring && (
-                          <span className="recurring">
-                            <RotateCcw size={10} />
-                          </span>
-                        )}
-
-                        {task.start_time && (
-                          <span className="start-time">
-                            <Clock size={10} />
-                            {task.start_time}
-                          </span>
-                        )}
-                      </div>
                     </div>
                   ))
                 )}

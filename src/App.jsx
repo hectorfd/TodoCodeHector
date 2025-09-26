@@ -43,7 +43,7 @@ function App() {
     <div className="app">
       <nav className="app-nav">
         <div className="nav-left">
-          <h1>Todo Kanban</h1>
+          <h1>Organizador de Tareas</h1>
           <div className="view-switcher">
             <button
               className={currentView === 'kanban' ? 'active' : ''}

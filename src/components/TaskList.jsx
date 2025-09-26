@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Plus, Clock, RotateCcw, Calendar } from 'lucide-react';
+import { Plus, Clock, RotateCcw, Calendar, Trash2, AlertTriangle } from 'lucide-react';
 import Select from 'react-select';
-import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import './TaskList.css';
 
@@ -109,6 +108,34 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
     };
   };
 
+  const getPriorityColor = (priority) => {
+    const colors = {
+      low: '#10b981',
+      medium: '#f59e0b',
+      high: '#ef4444'
+    };
+    return colors[priority] || colors.medium;
+  };
+
+  const getColumnColor = (columnId) => {
+    const column = columns.find(c => c.id === columnId);
+    return column?.color || '#6b7280';
+  };
+
+  const isOverdue = (dueDate) => {
+    if (!dueDate) return false;
+    return new Date(dueDate) < new Date();
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const filteredTasks = getFilteredTasks();
   const stats = getTaskStats();
 
@@ -158,7 +185,7 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
         </div>
       </div>
 
-      <div className="tasks-grid">
+      <div className="tasks-table">
         {filteredTasks.length === 0 ? (
           <div className="empty-state">
             <p>No hay tareas que mostrar</p>
@@ -168,44 +195,133 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
             </button>
           </div>
         ) : (
-          filteredTasks.map(task => (
-            <div key={task.id} className="task-list-item">
-              <TaskCard
-                task={task}
-                onUpdate={onUpdateTask}
-                onDelete={onDeleteTask}
-                columns={columns}
-              />
-
-              <div className="task-metadata">
-                {(task.duration_hours || task.duration_minutes) && (
-                  <span className="duration">
-                    <Clock size={12} />
-                    {formatDuration(task.duration_hours, task.duration_minutes)}
-                  </span>
-                )}
-
-                {task.start_time && task.end_time && (
-                  <span className="schedule">
-                    <Clock size={12} />
-                    {task.start_time} - {task.end_time}
-                  </span>
-                )}
-
-                {task.is_recurring && (
-                  <span className="recurring">
-                    <RotateCcw size={12} />
-                    Recurrente
-                  </span>
-                )}
-
-                <span className="created">
-                  <Calendar size={12} />
-                  Creada: {new Date(task.created_at).toLocaleDateString()}
-                </span>
-              </div>
+          <div className="table-container">
+            <div className="table-header">
+              <div className="col-priority">•</div>
+              <div className="col-title">Tarea</div>
+              <div className="col-status">Estado</div>
+              <div className="col-due">Fecha Límite</div>
+              <div className="col-meta">Detalles</div>
+              <div className="col-actions">Acciones</div>
             </div>
-          ))
+
+            <div className="table-body">
+              {filteredTasks.map(task => (
+                <div key={task.id} className={`table-row ${isOverdue(task.due_date) ? 'overdue' : ''}`}>
+                  <div className="col-priority">
+                    <div
+                      className="priority-dot"
+                      style={{ backgroundColor: getPriorityColor(task.priority) }}
+                      title={`Prioridad: ${task.priority}`}
+                    />
+                  </div>
+
+                  <div className="col-title">
+                    <div className="task-title-container">
+                      <span className="task-title">{task.title}</span>
+                      {task.is_recurring && (
+                        <RotateCcw size={14} className="recurring-icon" title="Tarea recurrente" />
+                      )}
+                      {isOverdue(task.due_date) && (
+                        <AlertTriangle size={14} className="overdue-icon" title="Vencida" />
+                      )}
+                    </div>
+                    {task.description && (
+                      <div className="task-description">{task.description}</div>
+                    )}
+                  </div>
+
+                  <div className="col-status">
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: getColumnColor(task.column_id) }}
+                    >
+                      {columns.find(c => c.id === task.column_id)?.name || 'Sin estado'}
+                    </span>
+                  </div>
+
+                  <div className="col-due">
+                    {task.due_date ? (
+                      <span className={isOverdue(task.due_date) ? 'overdue-date' : ''}>
+                        {formatDate(task.due_date)}
+                      </span>
+                    ) : (
+                      <span className="no-date">Sin fecha</span>
+                    )}
+                  </div>
+
+                  <div className="col-meta">
+                    <div className="meta-items">
+                      {(task.duration_hours || task.duration_minutes) && (
+                        <span className="meta-item">
+                          <Clock size={12} />
+                          {formatDuration(task.duration_hours, task.duration_minutes)}
+                        </span>
+                      )}
+
+                      {task.start_time && task.end_time && (
+                        <span className="meta-item">
+                          <Clock size={12} />
+                          {task.start_time}-{task.end_time}
+                        </span>
+                      )}
+
+                      <span className="meta-item created-date">
+                        <Calendar size={12} />
+                        {formatDate(task.created_at)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="col-actions">
+                    <Select
+                      options={columns.map(col => ({ value: col.id, label: col.name }))}
+                      value={columns.find(col => col.id === task.column_id) ?
+                        { value: task.column_id, label: columns.find(col => col.id === task.column_id).name } :
+                        null}
+                      onChange={(selected) => onUpdateTask(task.id, { column_id: selected.value })}
+                      styles={{
+                        control: (provided) => ({
+                          ...provided,
+                          minHeight: '32px',
+                          fontSize: '12px',
+                          backgroundColor: 'var(--bg-primary)',
+                          borderColor: 'var(--border-color)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          backgroundColor: 'var(--bg-secondary)',
+                          fontSize: '12px'
+                        }),
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isSelected ? 'var(--primary-color)' :
+                                         state.isFocused ? 'var(--bg-tertiary)' : 'transparent',
+                          color: state.isSelected ? 'white' : 'var(--text-primary)',
+                          fontSize: '12px'
+                        }),
+                        singleValue: (provided) => ({
+                          ...provided,
+                          color: 'var(--text-primary)',
+                          fontSize: '12px'
+                        })
+                      }}
+                      isSearchable={false}
+                      className="status-select"
+                    />
+
+                    <button
+                      onClick={() => onDeleteTask(task.id)}
+                      className="delete-btn"
+                      title="Eliminar tarea"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

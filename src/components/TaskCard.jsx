@@ -1,11 +1,45 @@
 
 import { Calendar, Trash2, RotateCcw, AlertTriangle, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
+import ConfirmModal from './ConfirmModal';
 import './TaskCard.css';
 
-const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
+const TaskCard = ({ task, onUpdate, onDelete, columns, isKanbanView = false }) => {
+  const [isDark, setIsDark] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+
+    checkDarkMode();
+
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleMove = (selectedOption) => {
     onUpdate(task.id, { column_id: selectedOption.value });
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDelete(task.id);
+    setShowDeleteModal(false);
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
   };
 
   const formatDate = (dateString) => {
@@ -185,6 +219,13 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
               {status.type === 'completed' && '✓'}
             </div>
           )}
+          <button
+            onClick={handleDeleteClick}
+            className="delete-btn-header"
+            title="Eliminar tarea"
+          >
+            <Trash2 size={12} />
+          </button>
         </div>
       </div>
 
@@ -203,18 +244,27 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
           </span>
           {daysUntilDue !== null && (
             <span className="days-until-due">
-              {daysUntilDue === 0 && ' (Hoy)'}
-              {daysUntilDue === 1 && ' (Mañana)'}
-              {daysUntilDue > 1 && ` (en ${daysUntilDue} días)`}
-              {daysUntilDue < 0 && ` (${Math.abs(daysUntilDue)} días vencida)`}
+              {daysUntilDue === 0 ? ' (Hoy)' :
+               daysUntilDue === 1 ? ' (Mañana)' :
+               daysUntilDue > 1 ? ` (en ${daysUntilDue} días)` :
+               ` (${Math.abs(daysUntilDue)} días vencida)`}
             </span>
           )}
         </div>
       )}
 
       {task.is_recurring && (
-        <div className="recurrence-details">
-          <div className="recurrence-info">
+        <div
+          className="recurrence-details"
+          style={isDark ? {
+            background: 'rgba(139, 92, 246, 0.15)',
+            border: '1px solid rgba(139, 92, 246, 0.4)'
+          } : {}}
+        >
+          <div
+            className="recurrence-info"
+            style={isDark ? { color: '#a78bfa' } : {}}
+          >
             <RotateCcw size={12} />
             <span>{getRecurrenceInfo()?.fullText || 'Tarea recurrente'}</span>
           </div>
@@ -226,6 +276,10 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
                 <span
                   key={index}
                   className="next-date"
+                  style={isDark ? {
+                    background: '#a78bfa',
+                    color: 'var(--text-primary)'
+                  } : {}}
                   title={`${formatDate(date)} (${getDayName(date)})`}
                 >
                   {formatDate(date)}
@@ -237,24 +291,34 @@ const TaskCard = ({ task, onUpdate, onDelete, columns }) => {
         </div>
       )}
 
-      <div className="task-actions">
-        <Select
-          options={columnOptions}
-          value={columnOptions.find(option => option.value === task.column_id)}
-          onChange={handleMove}
-          styles={customStyles}
-          isSearchable={false}
-          className="move-select"
-        />
+      {!isKanbanView && (
+        <div className="task-actions">
+          <Select
+            options={columnOptions}
+            value={columnOptions.find(option => option.value === task.column_id)}
+            onChange={handleMove}
+            styles={customStyles}
+            isSearchable={false}
+            className="move-select"
+          />
 
-        <button
-          onClick={() => onDelete(task.id)}
-          className="delete-btn"
-          title="Eliminar tarea"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
+          <button
+            onClick={handleDeleteClick}
+            className="delete-btn"
+            title="Eliminar tarea"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        title="Eliminar Tarea"
+        message={`¿Estás seguro de que quieres eliminar "${task.title}"? ${task.is_recurring ? 'Esta acción eliminará permanentemente la tarea recurrente y todos sus datos.' : 'Esta acción no se puede deshacer.'}`}
+      />
     </div>
   );
 };

@@ -251,7 +251,74 @@ class DatabaseService {
   }
 
   deleteTask(id) {
-    return this.db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+    try {
+      console.log('🔥 ELIMINANDO TAREA FUERZA BRUTA:', id);
+
+      // Eliminar TODO lo relacionado primero sin fallar
+      try {
+        const recurrenceResult = this.db.prepare('DELETE FROM task_recurrence WHERE task_id = ?').run(id);
+        console.log('Recurrencia eliminada:', recurrenceResult.changes, 'filas');
+      } catch (e) {
+        console.log('No había recurrencia que eliminar');
+      }
+
+      try {
+        const fieldsResult = this.db.prepare('DELETE FROM custom_fields WHERE task_id = ?').run(id);
+        console.log('Campos personalizados eliminados:', fieldsResult.changes, 'filas');
+      } catch (e) {
+        console.log('No había campos personalizados que eliminar');
+      }
+
+      try {
+        const attachmentsResult = this.db.prepare('DELETE FROM attachments WHERE task_id = ?').run(id);
+        console.log('Archivos eliminados:', attachmentsResult.changes, 'filas');
+      } catch (e) {
+        console.log('No había archivos que eliminar');
+      }
+
+      // Ahora eliminar la tarea principal
+      const result = this.db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+      console.log('✅ TAREA PRINCIPAL ELIMINADA:', result.changes, 'filas');
+
+      if (result.changes === 0) {
+        throw new Error('❌ Tarea no encontrada en la base de datos');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('❌ ERROR BRUTAL eliminando tarea:', error);
+      throw error;
+    }
+  }
+
+  deleteRecurringTask(id) {
+    try {
+      console.log('Eliminando tarea recurrente:', id);
+
+      // Usar transacción para asegurar que todo se elimine correctamente
+      const deleteTransaction = this.db.transaction(() => {
+        // Eliminar datos de recurrencia primero
+        const deleteRecurrence = this.db.prepare('DELETE FROM task_recurrence WHERE task_id = ?');
+        const recurrenceResult = deleteRecurrence.run(id);
+        console.log('Recurrencia eliminada:', recurrenceResult);
+
+        // Eliminar la tarea
+        const deleteTask = this.db.prepare('DELETE FROM tasks WHERE id = ?');
+        const taskResult = deleteTask.run(id);
+        console.log('Tarea eliminada:', taskResult);
+
+        if (taskResult.changes === 0) {
+          throw new Error('Tarea recurrente no encontrada');
+        }
+
+        return taskResult;
+      });
+
+      return deleteTransaction();
+    } catch (error) {
+      console.error('Error eliminando tarea recurrente:', error);
+      throw error;
+    }
   }
 
   getRecurringTasks() {
