@@ -62,12 +62,10 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
 
   const handleCreateTask = async (taskData) => {
     try {
-      console.log('📋 TaskList: Creando tarea...', taskData);
       await onCreateTask(taskData);
-      console.log('✅ TaskList: Tarea creada exitosamente');
       setShowForm(false);
     } catch (error) {
-      console.error('❌ TaskList: Error creando tarea:', error);
+      console.error('Error creating task:', error);
       alert('Error creando la tarea: ' + error.message);
     }
   };
@@ -147,10 +145,6 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
   const filteredTasks = getFilteredTasks();
   const stats = getTaskStats();
 
-  // Debug: verificar si llegan las fechas
-  if (filteredTasks.length > 0) {
-    console.log('PRIMERA TAREA:', filteredTasks[0]);
-  }
 
   return (
     <div className="task-list-container">

@@ -14,13 +14,11 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
 
   const handleCreateTask = async (taskData) => {
     try {
-      console.log('🎯 KanbanBoard: Creando tarea...', taskData);
       await onCreateTask(taskData);
-      console.log('✅ KanbanBoard: Tarea creada exitosamente');
       setShowForm(false);
       setSelectedColumn(null);
     } catch (error) {
-      console.error('❌ KanbanBoard: Error creando tarea:', error);
+      console.error('Error creating task:', error);
       alert('Error creando la tarea: ' + error.message);
     }
   };

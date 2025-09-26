@@ -23,7 +23,13 @@ Aplicación personal de tareas con vista lista y tablero Kanban personalizable.
 - [x] Exportar JSON con fecha automática
 - [x] Navegación fluida entre vistas
 - [x] Columnas personalizables
-- [ ] Sistema de tareas recurrentes
+- [x] Sistema de tareas recurrentes
+- [x] React-select componentes mejorados
+- [x] Vista calendario inteligente
+- [x] Drag & drop optimizado con feedback visual
+- [x] Headers de columnas con forma de flecha
+- [x] Botones flotantes en hover de columnas
+- [x] Render en tiempo real de tareas nuevas
 - [ ] Campos personalizados (URLs, notas)
 - [ ] Soporte para imágenes
 - [ ] Empaquetado Electron
@@ -72,9 +78,14 @@ npm run electron    # Ejecutar como app desktop (pendiente)
 - ✨ **Crear tareas** con título, descripción, fechas
 - 🎯 **Vista Kanban** con drag & drop entre columnas
 - 📋 **Vista Lista** con filtros y ordenamiento
+- 📅 **Vista Calendario** inteligente con recurrencias
 - 🌙 **Modo oscuro/claro** con persistencia
 - 📊 **Estadísticas** de tareas por estado
 - 📤 **Exportar** todas las tareas a JSON
+- 🔄 **Tareas recurrentes** (diario, semanal, mensual, anual)
+- 🎨 **Columnas personalizables** con drag & drop
+- ⚡ **Render en tiempo real** sin refrescar página
+- 🎛️ **React-select** componentes profesionales
 
 ## Próximos Pasos
 1. Instalar SQLite y dependencias
