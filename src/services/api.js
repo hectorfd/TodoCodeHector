@@ -27,6 +27,53 @@ class ApiServer {
       }
     });
 
+    this.app.post('/api/columns', (req, res) => {
+      try {
+        const columnData = req.body;
+        const column = {
+          id: uuidv4(),
+          name: columnData.name,
+          color: columnData.color || '#6366f1',
+          order_index: columnData.order_index || 0
+        };
+
+        this.db.createColumn(column);
+        res.status(201).json(column);
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
+    this.app.put('/api/columns/:id', (req, res) => {
+      try {
+        const { id } = req.params;
+        this.db.updateColumn(id, req.body);
+        res.json({ message: 'Column updated successfully' });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
+    this.app.delete('/api/columns/:id', (req, res) => {
+      try {
+        const { id } = req.params;
+        this.db.deleteColumn(id);
+        res.json({ message: 'Column deleted successfully' });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
+    this.app.put('/api/columns/reorder', (req, res) => {
+      try {
+        const { columnOrders } = req.body;
+        this.db.reorderColumns(columnOrders);
+        res.json({ message: 'Columns reordered successfully' });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
     this.app.get('/api/tasks', (req, res) => {
       try {
         const tasks = this.db.getAllTasks();

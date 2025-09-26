@@ -68,6 +68,61 @@ export const useTasks = () => {
     }
   };
 
+  const createColumn = async (columnData) => {
+    try {
+      const response = await fetch(`${API_BASE}/columns`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(columnData)
+      });
+      const newColumn = await response.json();
+      setColumns(prev => [...prev, newColumn].sort((a, b) => a.order_index - b.order_index));
+      return newColumn;
+    } catch (error) {
+      console.error('Error creating column:', error);
+    }
+  };
+
+  const updateColumn = async (id, updates) => {
+    try {
+      await fetch(`${API_BASE}/columns/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      setColumns(prev => prev.map(column =>
+        column.id === id ? { ...column, ...updates } : column
+      ));
+    } catch (error) {
+      console.error('Error updating column:', error);
+    }
+  };
+
+  const deleteColumn = async (id) => {
+    try {
+      await fetch(`${API_BASE}/columns/${id}`, { method: 'DELETE' });
+      setColumns(prev => prev.filter(column => column.id !== id));
+    } catch (error) {
+      console.error('Error deleting column:', error);
+    }
+  };
+
+  const reorderColumns = async (columnOrders) => {
+    try {
+      await fetch(`${API_BASE}/columns/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ columnOrders })
+      });
+      setColumns(prev => prev.map(column => {
+        const newOrder = columnOrders.find(order => order.id === column.id);
+        return newOrder ? { ...column, order_index: newOrder.order_index } : column;
+      }).sort((a, b) => a.order_index - b.order_index));
+    } catch (error) {
+      console.error('Error reordering columns:', error);
+    }
+  };
+
   const exportData = async () => {
     try {
       const response = await fetch(`${API_BASE}/export`);
@@ -90,6 +145,10 @@ export const useTasks = () => {
     createTask,
     updateTask,
     deleteTask,
+    createColumn,
+    updateColumn,
+    deleteColumn,
+    reorderColumns,
     exportData,
     refetch: () => {
       fetchColumns();

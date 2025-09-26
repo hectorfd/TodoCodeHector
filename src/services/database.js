@@ -103,6 +103,42 @@ class DatabaseService {
     return this.db.prepare('SELECT * FROM columns ORDER BY order_index').all();
   }
 
+  createColumn(column) {
+    const stmt = this.db.prepare(`
+      INSERT INTO columns (id, name, color, order_index)
+      VALUES (?, ?, ?, ?)
+    `);
+    return stmt.run(column.id, column.name, column.color, column.order_index);
+  }
+
+  updateColumn(id, updates) {
+    const fields = Object.keys(updates).map(key => `${key} = ?`).join(', ');
+    const values = Object.values(updates);
+    const stmt = this.db.prepare(`UPDATE columns SET ${fields} WHERE id = ?`);
+    return stmt.run(...values, id);
+  }
+
+  deleteColumn(id) {
+    const hasTasksStmt = this.db.prepare('SELECT COUNT(*) as count FROM tasks WHERE column_id = ?');
+    const taskCount = hasTasksStmt.get(id);
+
+    if (taskCount.count > 0) {
+      throw new Error('No se puede eliminar una columna que contiene tareas');
+    }
+
+    return this.db.prepare('DELETE FROM columns WHERE id = ?').run(id);
+  }
+
+  reorderColumns(columnOrders) {
+    const updateStmt = this.db.prepare('UPDATE columns SET order_index = ? WHERE id = ?');
+    const transaction = this.db.transaction((orders) => {
+      for (const { id, order_index } of orders) {
+        updateStmt.run(order_index, id);
+      }
+    });
+    return transaction(columnOrders);
+  }
+
   getAllTasks() {
     return this.db.prepare(`
       SELECT t.*, c.name as column_name, c.color as column_color
