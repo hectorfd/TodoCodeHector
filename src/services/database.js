@@ -36,6 +36,7 @@ class DatabaseService {
         priority TEXT DEFAULT 'medium',
         is_recurring BOOLEAN DEFAULT 0,
         parent_task_id TEXT,
+        last_generated DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (column_id) REFERENCES columns (id)
       );
@@ -199,6 +200,26 @@ class DatabaseService {
 
   deleteTask(id) {
     return this.db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+  }
+
+  getRecurringTasks() {
+    return this.db.prepare(`
+      SELECT t.*,
+             tr.recurrence_type, tr.interval_value, tr.end_date, tr.days_of_week, tr.days_of_month,
+             t.created_at as last_generated
+      FROM tasks t
+      JOIN task_recurrence tr ON t.id = tr.task_id
+      WHERE t.is_recurring = 1
+    `).all().map(task => ({
+      ...task,
+      recurrence: {
+        recurrence_type: task.recurrence_type,
+        interval_value: task.interval_value,
+        end_date: task.end_date,
+        days_of_week: task.days_of_week,
+        days_of_month: task.days_of_month
+      }
+    }));
   }
 
   close() {

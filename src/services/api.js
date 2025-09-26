@@ -177,6 +177,69 @@ class ApiServer {
     });
   }
 
+  generateRecurringTasks() {
+    const recurringTasks = this.db.getRecurringTasks();
+    let generatedCount = 0;
+    const today = new Date();
+
+    recurringTasks.forEach(task => {
+      if (!task.recurrence) return;
+
+      const lastCreated = task.last_generated ? new Date(task.last_generated) : new Date(task.created_at);
+      const nextDue = this.calculateNextDueDate(lastCreated, task.recurrence);
+
+      if (nextDue <= today) {
+        const shouldGenerate = !task.recurrence.end_date ||
+                              new Date(task.recurrence.end_date) >= nextDue;
+
+        if (shouldGenerate) {
+          const newTask = {
+            id: uuidv4(),
+            title: task.title,
+            description: task.description,
+            columnId: task.column_id,
+            dueDate: nextDue.toISOString().split('T')[0],
+            priority: task.priority,
+            durationHours: task.duration_hours,
+            durationMinutes: task.duration_minutes,
+            startTime: task.start_time,
+            endTime: task.end_time,
+            isRecurring: false,
+            parentTaskId: task.id
+          };
+
+          this.db.createTask(newTask);
+          this.db.updateTask(task.id, { last_generated: today.toISOString() });
+          generatedCount++;
+        }
+      }
+    });
+
+    return generatedCount;
+  }
+
+  calculateNextDueDate(lastDate, recurrence) {
+    const nextDate = new Date(lastDate);
+    const interval = recurrence.interval_value || 1;
+
+    switch (recurrence.recurrence_type) {
+      case 'daily':
+        nextDate.setDate(nextDate.getDate() + interval);
+        break;
+      case 'weekly':
+        nextDate.setDate(nextDate.getDate() + (interval * 7));
+        break;
+      case 'monthly':
+        nextDate.setMonth(nextDate.getMonth() + interval);
+        break;
+      case 'yearly':
+        nextDate.setFullYear(nextDate.getFullYear() + interval);
+        break;
+    }
+
+    return nextDate;
+  }
+
   stop() {
     if (this.server) {
       this.server.close();
