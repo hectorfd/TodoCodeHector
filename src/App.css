@@ -10,7 +10,10 @@
   --bg-tertiary: #f9fafb;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
   --border-color: #e5e7eb;
+  --primary-color: #6366f1;
+  --primary-hover: #5b5bd6;
   --accent-color: #6366f1;
   --success-color: #10b981;
   --warning-color: #f59e0b;
@@ -24,7 +27,10 @@
   --bg-tertiary: #334155;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
   --border-color: #334155;
+  --primary-color: #818cf8;
+  --primary-hover: #6366f1;
   --accent-color: #818cf8;
   --success-color: #34d399;
   --warning-color: #fbbf24;
@@ -113,7 +119,8 @@ body {
 }
 
 .export-btn,
-.theme-btn {
+.theme-btn,
+.settings-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
@@ -131,7 +138,8 @@ body {
   color: white;
 }
 
-.theme-btn {
+.theme-btn,
+.settings-btn {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -142,7 +150,8 @@ body {
   transform: translateY(-1px);
 }
 
-.theme-btn:hover {
+.theme-btn:hover,
+.settings-btn:hover {
   background-color: var(--bg-secondary);
   transform: translateY(-1px);
 }
@@ -212,13 +221,15 @@ body {
   }
 
   .export-btn,
-  .theme-btn {
+  .theme-btn,
+  .settings-btn {
     padding: 10px 12px;
     font-size: 14px;
   }
 
   .export-btn span,
-  .theme-btn span {
+  .theme-btn span,
+  .settings-btn span {
     display: none;
   }
 }

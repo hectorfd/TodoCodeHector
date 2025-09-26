@@ -99,6 +99,17 @@ function App() {
           />
         )}
       </main>
+
+      {showColumnEditor && (
+        <ColumnEditor
+          columns={columns}
+          onCreateColumn={createColumn}
+          onUpdateColumn={updateColumn}
+          onDeleteColumn={deleteColumn}
+          onReorderColumns={reorderColumns}
+          onClose={() => setShowColumnEditor(false)}
+        />
+      )}
     </div>
   );
 }
