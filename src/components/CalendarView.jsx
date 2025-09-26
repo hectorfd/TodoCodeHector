@@ -29,7 +29,7 @@ const CalendarView = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask
     if (!task.is_recurring || !task.recurrence_type || task.column_id === 'done') return [];
 
     const instances = [];
-    const baseDate = new Date(task.created_at);
+    const baseDate = task.due_date ? new Date(task.due_date) : new Date(task.created_at);
     const interval = task.interval_value || 1;
     const endDate = task.recurrence_end_date ? new Date(task.recurrence_end_date) :
                    new Date(currentYear + 1, currentMonth, 1);
@@ -38,40 +38,47 @@ const CalendarView = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask
     const monthEnd = new Date(currentYear, currentMonth + 1, 0);
 
     let currentIterationDate = new Date(baseDate);
+    let iterationCount = 0;
 
-    for (let i = 0; i < 100; i++) {
+    while (iterationCount < 365 && currentIterationDate <= endDate) {
+      if (currentIterationDate >= monthStart && currentIterationDate <= monthEnd) {
+        instances.push({
+          ...task,
+          id: `${task.id}-recurrence-${iterationCount}`,
+          due_date: currentIterationDate.toISOString().split('T')[0],
+          isRecurringInstance: true,
+          originalTaskId: task.id
+        });
+      }
+
       switch (task.recurrence_type) {
         case 'daily':
-          currentIterationDate = new Date(baseDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
+          currentIterationDate.setDate(currentIterationDate.getDate() + interval);
           break;
         case 'weekly':
-          currentIterationDate = new Date(baseDate.getTime() + (i * interval * 7 * 24 * 60 * 60 * 1000));
+          currentIterationDate.setDate(currentIterationDate.getDate() + (interval * 7));
           break;
         case 'monthly':
-          currentIterationDate = new Date(baseDate);
-          currentIterationDate.setMonth(baseDate.getMonth() + (i * interval));
+          currentIterationDate.setMonth(currentIterationDate.getMonth() + interval);
           break;
         case 'yearly':
-          currentIterationDate = new Date(baseDate);
-          currentIterationDate.setFullYear(baseDate.getFullYear() + (i * interval));
+          currentIterationDate.setFullYear(currentIterationDate.getFullYear() + interval);
           break;
       }
 
-      if (currentIterationDate > endDate) break;
-      if (currentIterationDate < monthStart) continue;
-      if (currentIterationDate > monthEnd) break;
-
-      instances.push({
-        ...task,
-        id: `${task.id}-recurrence-${i}`,
-        due_date: currentIterationDate.toISOString().split('T')[0],
-        isRecurringInstance: true,
-        originalTaskId: task.id
-      });
+      iterationCount++;
     }
 
     return instances;
   };
+
+  const getAllRecurringInstances = () => {
+    return tasks
+      .filter(task => task.is_recurring && task.column_id !== 'done')
+      .flatMap(task => generateRecurringInstances(task));
+  };
+
+  const recurringInstancesCache = getAllRecurringInstances();
 
   const getTasksForDate = (date) => {
     const dateString = date.toISOString().split('T')[0];
@@ -80,10 +87,9 @@ const CalendarView = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask
       task.due_date === dateString && task.column_id !== 'done'
     );
 
-    const recurringInstances = tasks
-      .filter(task => task.is_recurring && task.column_id !== 'done')
-      .flatMap(task => generateRecurringInstances(task))
-      .filter(instance => instance.due_date === dateString);
+    const recurringInstances = recurringInstancesCache.filter(instance =>
+      instance.due_date === dateString
+    );
 
     return [...regularTasks, ...recurringInstances];
   };

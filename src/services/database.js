@@ -150,15 +150,38 @@ class DatabaseService {
   }
 
   getAllTasks() {
-    return this.db.prepare(`
-      SELECT t.*, c.name as column_name, c.color as column_color,
-             tr.recurrence_type, tr.interval_value, tr.end_date as recurrence_end_date,
-             tr.days_of_week, tr.days_of_month
+    const tasksQuery = this.db.prepare(`
+      SELECT t.*, c.name as column_name, c.color as column_color
       FROM tasks t
       LEFT JOIN columns c ON t.column_id = c.id
-      LEFT JOIN task_recurrence tr ON t.id = tr.task_id
       ORDER BY t.created_at DESC
-    `).all();
+    `);
+
+    const recurrenceQuery = this.db.prepare(`
+      SELECT task_id, recurrence_type, interval_value, end_date as recurrence_end_date,
+             days_of_week, days_of_month
+      FROM task_recurrence
+    `);
+
+    const tasks = tasksQuery.all();
+    const recurrences = recurrenceQuery.all();
+
+    const recurrenceMap = {};
+    recurrences.forEach(r => {
+      recurrenceMap[r.task_id] = r;
+    });
+
+    return tasks.map(task => {
+      const recurrence = recurrenceMap[task.id];
+      return {
+        ...task,
+        recurrence_type: recurrence?.recurrence_type || null,
+        interval_value: recurrence?.interval_value || null,
+        recurrence_end_date: recurrence?.recurrence_end_date || null,
+        days_of_week: recurrence?.days_of_week || null,
+        days_of_month: recurrence?.days_of_month || null
+      };
+    });
   }
 
   createTask(task) {
