@@ -26,13 +26,17 @@ const ColumnEditor = ({ columns, onCreateColumn, onUpdateColumn, onDeleteColumn,
       order_index: columns.length
     };
 
-    if (editingColumn) {
-      await onUpdateColumn(editingColumn.id, columnData);
-    } else {
-      await onCreateColumn(columnData);
+    try {
+      if (editingColumn) {
+        await onUpdateColumn(editingColumn.id, columnData);
+      } else {
+        await onCreateColumn(columnData);
+      }
+      resetForm();
+    } catch (error) {
+      console.error('Error saving column:', error);
+      alert('Error al guardar la columna: ' + error.message);
     }
-
-    resetForm();
   };
 
   const resetForm = () => {

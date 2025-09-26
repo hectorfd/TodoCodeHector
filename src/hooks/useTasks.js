@@ -75,11 +75,17 @@ export const useTasks = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(columnData)
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const newColumn = await response.json();
       setColumns(prev => [...prev, newColumn].sort((a, b) => a.order_index - b.order_index));
       return newColumn;
     } catch (error) {
       console.error('Error creating column:', error);
+      throw error;
     }
   };
 
