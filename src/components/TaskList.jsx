@@ -140,6 +140,11 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
   const filteredTasks = getFilteredTasks();
   const stats = getTaskStats();
 
+  // Debug: verificar si llegan las fechas
+  if (filteredTasks.length > 0) {
+    console.log('PRIMERA TAREA:', filteredTasks[0]);
+  }
+
   return (
     <div className="task-list-container">
       <div className="task-list-header">
