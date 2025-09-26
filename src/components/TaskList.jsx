@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Clock, RotateCcw, Calendar } from 'lucide-react';
+import Select from 'react-select';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import './TaskList.css';
@@ -8,6 +9,54 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('created_at');
+
+  const filterOptions = [
+    { value: 'all', label: 'Todas' },
+    { value: 'todo', label: 'Por Hacer' },
+    { value: 'in-progress', label: 'En Progreso' },
+    { value: 'done', label: 'Completadas' }
+  ];
+
+  const sortOptions = [
+    { value: 'created_at', label: 'Fecha Creación' },
+    { value: 'due_date', label: 'Fecha Límite' },
+    { value: 'priority', label: 'Prioridad' },
+    { value: 'title', label: 'Título' }
+  ];
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--bg-primary)',
+      borderColor: 'var(--border-color)',
+      minHeight: '36px',
+      fontSize: '14px',
+      '&:hover': {
+        borderColor: 'var(--primary-color)'
+      }
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--bg-secondary)',
+      border: '1px solid var(--border-color)',
+      fontSize: '14px'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? 'var(--primary-color)'
+        : state.isFocused
+          ? 'var(--bg-tertiary)'
+          : 'transparent',
+      color: state.isSelected ? 'white' : 'var(--text-primary)',
+      fontSize: '14px'
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--text-primary)',
+      fontSize: '14px'
+    })
+  };
 
   const handleCreateTask = async (taskData) => {
     await onCreateTask(taskData);
@@ -86,22 +135,24 @@ const TaskList = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask }) 
       <div className="task-list-controls">
         <div className="filters">
           <label>Filtrar:</label>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="all">Todas</option>
-            <option value="todo">Por Hacer</option>
-            <option value="in-progress">En Progreso</option>
-            <option value="done">Completadas</option>
-          </select>
+          <Select
+            options={filterOptions}
+            value={filterOptions.find(option => option.value === filter)}
+            onChange={(selectedOption) => setFilter(selectedOption.value)}
+            styles={customStyles}
+            isSearchable={false}
+          />
         </div>
 
         <div className="sorting">
           <label>Ordenar:</label>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="created_at">Fecha Creación</option>
-            <option value="due_date">Fecha Límite</option>
-            <option value="priority">Prioridad</option>
-            <option value="title">Título</option>
-          </select>
+          <Select
+            options={sortOptions}
+            value={sortOptions.find(option => option.value === sortBy)}
+            onChange={(selectedOption) => setSortBy(selectedOption.value)}
+            styles={customStyles}
+            isSearchable={false}
+          />
         </div>
       </div>
 

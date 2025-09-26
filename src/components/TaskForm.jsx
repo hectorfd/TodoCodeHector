@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Select from 'react-select';
 import './TaskForm.css';
 
 const TaskForm = ({ onSubmit, onCancel }) => {
@@ -9,6 +10,52 @@ const TaskForm = ({ onSubmit, onCancel }) => {
     dueDate: '',
     priority: 'medium'
   });
+
+  const columnOptions = [
+    { value: 'todo', label: 'Por Hacer' },
+    { value: 'in-progress', label: 'En Progreso' },
+    { value: 'done', label: 'Completado' }
+  ];
+
+  const priorityOptions = [
+    { value: 'low', label: 'Baja' },
+    { value: 'medium', label: 'Media' },
+    { value: 'high', label: 'Alta' }
+  ];
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: 'var(--bg-primary)',
+      borderColor: state.isFocused ? 'var(--primary-color)' : 'var(--border-color)',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(99, 102, 241, 0.1)' : 'none',
+      '&:hover': {
+        borderColor: 'var(--primary-color)'
+      }
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--bg-secondary)',
+      border: '1px solid var(--border-color)',
+      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? 'var(--primary-color)'
+        : state.isFocused
+          ? 'var(--bg-tertiary)'
+          : 'transparent',
+      color: state.isSelected ? 'white' : 'var(--text-primary)',
+      '&:hover': {
+        backgroundColor: state.isSelected ? 'var(--primary-color)' : 'var(--bg-tertiary)'
+      }
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--text-primary)'
+    })
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -70,30 +117,26 @@ const TaskForm = ({ onSubmit, onCancel }) => {
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="columnId">Estado</label>
-            <select
-              id="columnId"
-              name="columnId"
-              value={formData.columnId}
-              onChange={handleChange}
-            >
-              <option value="todo">Por Hacer</option>
-              <option value="in-progress">En Progreso</option>
-              <option value="done">Completado</option>
-            </select>
+            <Select
+              options={columnOptions}
+              value={columnOptions.find(option => option.value === formData.columnId)}
+              onChange={(selectedOption) => setFormData(prev => ({ ...prev, columnId: selectedOption.value }))}
+              styles={customStyles}
+              placeholder="Seleccionar estado..."
+              isSearchable={false}
+            />
           </div>
 
           <div className="form-group">
             <label htmlFor="priority">Prioridad</label>
-            <select
-              id="priority"
-              name="priority"
-              value={formData.priority}
-              onChange={handleChange}
-            >
-              <option value="low">Baja</option>
-              <option value="medium">Media</option>
-              <option value="high">Alta</option>
-            </select>
+            <Select
+              options={priorityOptions}
+              value={priorityOptions.find(option => option.value === formData.priority)}
+              onChange={(selectedOption) => setFormData(prev => ({ ...prev, priority: selectedOption.value }))}
+              styles={customStyles}
+              placeholder="Seleccionar prioridad..."
+              isSearchable={false}
+            />
           </div>
         </div>
 
