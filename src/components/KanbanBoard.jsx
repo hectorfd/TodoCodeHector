@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, AlertCircle, Clock, RotateCcw, ArrowRight } from 'lucide-react';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
@@ -10,12 +10,11 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
   const [draggedTask, setDraggedTask] = useState(null);
   const [hoveredColumn, setHoveredColumn] = useState(null);
   const [selectedColumn, setSelectedColumn] = useState(null);
+  const columnsRef = useRef([]);
 
   const handleCreateTask = async (taskData) => {
-    const finalTaskData = selectedColumn ?
-      { ...taskData, column_id: selectedColumn } :
-      taskData;
-    await onCreateTask(finalTaskData);
+    // Si se abrió desde botón flotante, pre-seleccionar pero permitir cambio
+    await onCreateTask(taskData);
     setShowForm(false);
     setSelectedColumn(null);
   };
@@ -38,8 +37,13 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    const column = e.currentTarget;
-    column.classList.add('drag-over');
+    e.currentTarget.classList.add('drag-over');
+  };
+
+  const handleDragLeave = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      e.currentTarget.classList.remove('drag-over');
+    }
   };
 
   const handleDrop = (e, columnId) => {
@@ -52,9 +56,10 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
     document.querySelectorAll('.kanban-task-wrapper.dragging').forEach(el => {
       el.classList.remove('dragging');
     });
-    document.querySelectorAll('.kanban-column.drag-over').forEach(el => {
+    document.querySelectorAll('.column-body.drag-over').forEach(el => {
       el.classList.remove('drag-over');
     });
+    e.currentTarget.classList.remove('drag-over');
   };
 
   const getTasksByColumn = (columnId) => {
@@ -80,6 +85,64 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
     };
   };
 
+  const equalizeColumnHeights = () => {
+    if (columnsRef.current.length === 0) return;
+
+    // Resetear alturas primero
+    columnsRef.current.forEach(column => {
+      if (column) {
+        const columnBody = column.querySelector('.column-body');
+        if (columnBody) {
+          columnBody.style.minHeight = 'auto';
+        }
+      }
+    });
+
+    // Calcular altura máxima después de un pequeño delay para que se renderice
+    setTimeout(() => {
+      let maxHeight = 0;
+      columnsRef.current.forEach(column => {
+        if (column) {
+          const columnBody = column.querySelector('.column-body');
+          if (columnBody) {
+            const height = columnBody.scrollHeight;
+            maxHeight = Math.max(maxHeight, height);
+          }
+        }
+      });
+      if (maxHeight > 0) {
+        columnsRef.current.forEach(column => {
+          if (column) {
+            const columnBody = column.querySelector('.column-body');
+            if (columnBody) {
+              columnBody.style.minHeight = `${maxHeight}px`;
+            }
+          }
+        });
+      }
+    }, 10);
+  };
+
+  useEffect(() => {
+    equalizeColumnHeights();
+  }, [tasks, columns]);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      equalizeColumnHeights();
+    });
+
+    columnsRef.current.forEach(column => {
+      if (column) {
+        resizeObserver.observe(column);
+      }
+    });
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [tasks, columns]);
+
   return (
     <div className="kanban-container">
       <div className="kanban-header">
@@ -102,9 +165,8 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
           return (
             <div
               key={column.id}
+              ref={el => columnsRef.current[index] = el}
               className="kanban-column"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, column.id)}
               onMouseEnter={() => setHoveredColumn(column.id)}
               onMouseLeave={() => setHoveredColumn(null)}
             >
@@ -119,29 +181,41 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
 
               </div>
 
-              <div className="column-body">
+              <div
+                className="column-body"
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, column.id)}
+              >
                 {columnTasks.length === 0 ? (
-                  <div className="empty-column">
+                  <div
+                    className="empty-column"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, column.id)}
+                  >
                     <p>No hay tareas aquí</p>
                     <span>Arrastra tareas o crea una nueva</span>
                   </div>
                 ) : (
-                  columnTasks.map(task => (
-                    <div
-                      key={task.id}
-                      className="kanban-task-wrapper"
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, task)}
-                    >
-                      <TaskCard
-                        task={task}
-                        onUpdate={onUpdateTask}
-                        onDelete={onDeleteTask}
-                        columns={columns}
-                        isKanbanView={true}
-                      />
-                    </div>
-                  ))
+                  <div className="tasks-container">
+                    {columnTasks.map(task => (
+                      <div
+                        key={task.id}
+                        className="kanban-task-wrapper"
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, task)}
+                      >
+                        <TaskCard
+                          task={task}
+                          onUpdate={onUpdateTask}
+                          onDelete={onDeleteTask}
+                          columns={columns}
+                          isKanbanView={true}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
@@ -164,6 +238,7 @@ const KanbanBoard = ({ tasks, columns, onCreateTask, onUpdateTask, onDeleteTask 
           onSubmit={handleCreateTask}
           onCancel={() => setShowForm(false)}
           columns={columns}
+          defaultColumnId={selectedColumn}
         />
       )}
     </div>

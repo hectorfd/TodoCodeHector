@@ -2,11 +2,11 @@ import { useState } from 'react';
 import Select from 'react-select';
 import './TaskForm.css';
 
-const TaskForm = ({ onSubmit, onCancel, columns }) => {
+const TaskForm = ({ onSubmit, onCancel, columns, defaultColumnId }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    columnId: columns.length > 0 ? columns[0].id : 'todo',
+    columnId: defaultColumnId || (columns.length > 0 ? columns[0].id : 'todo'),
     dueDate: '',
     priority: 'medium',
     isRecurring: false,
